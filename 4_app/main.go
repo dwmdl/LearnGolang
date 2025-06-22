@@ -1,82 +1,77 @@
 package main
 
 import (
-	"errors"
+	"PurpleSchool/app-4/account"
 	"fmt"
-	"math/rand/v2"
-	"net/url"
 )
 
-type account struct {
-	login    string
-	password string
-	url      string
-}
-
-func (acc *account) outputData() {
-	fmt.Printf("Your login: %s \n", acc.login)
-	fmt.Printf("Your password: %s \n", acc.password)
-	fmt.Printf("URL: %s \n", acc.url)
-}
-
-func (acc *account) generatePassword(passwordLength int) {
-	password := make([]rune, passwordLength)
-	passwordSymbols := makeRange(33, 126)
-
-	for i := range password {
-		password[i] = passwordSymbols[rand.IntN(len(passwordSymbols))]
-	}
-
-	acc.password = string(password)
-}
-
-func newAccount(login, password, urlString string) (*account, error) {
-	if len(login) == 0 {
-		return nil, errors.New("INVALID_LOGIN")
-	}
-
-	_, err := url.ParseRequestURI(urlString)
-	if err != nil {
-		return nil, errors.New("INVALID_URL")
-	}
-
-	newAcc := &account{
-		login:    login,
-		password: password,
-		url:      urlString,
-	}
-
-	if len(password) == 0 {
-		newAcc.generatePassword(10)
-	}
-
-	return newAcc, nil
-}
+const appName = "Password Manager"
 
 func main() {
+	vault := account.NewVault()
+	fmt.Printf("Welcome to %s \n", appName)
+
+Menu:
+	for {
+		userMenuChoice := userMenu()
+
+		switch userMenuChoice {
+		case 1:
+			getNewAccountData(vault)
+		case 2:
+			findAccount(vault)
+		case 3:
+			deleteAccount()
+		default:
+			break Menu
+		}
+	}
+}
+
+func userMenu() (userChoice int) {
+	fmt.Println("Select one of the items")
+	fmt.Println("1. Create an account")
+	fmt.Println("2. Find an account")
+	fmt.Println("3. Delete an account")
+	fmt.Println("4. Exit")
+
+	fmt.Scan(&userChoice)
+	return
+}
+
+func getNewAccountData(vault *account.Vault) {
 	userLogin := promptData("Enter your login: ")
 	userURL := promptData("Enter URL: ")
 	userPassword := promptData("Enter password: ")
 
-	myAccount, err := newAccount(userLogin, userPassword, userURL)
+	newAccount, err := account.NewAccount(userLogin, userPassword, userURL)
 	if err != nil {
 		panic(err)
 	}
 
-	myAccount.outputData()
+	vault.AddAccount(*newAccount)
+	newAccount.OutputData()
+}
+
+func findAccount(vault *account.Vault) {
+	userAccountUrl := promptData("Enter a URL for searching")
+
+	foundAccounts := vault.FindAccountByUrl(&userAccountUrl)
+	if len(foundAccounts) == 0 {
+		fmt.Println("The accounts not found")
+	}
+
+	for _, acc := range foundAccounts {
+		acc.OutputData()
+	}
+}
+
+func deleteAccount() {
+	//
 }
 
 func promptData(prompt string) (userInput string) {
 	fmt.Println(prompt)
 	fmt.Scanln(&userInput)
 	return
-}
-
-func makeRange(min, max int) []int32 {
-	a := make([]int32, max-min+1)
-	for index := range a {
-		a[index] = int32(min + index)
-	}
-
-	return a
 }
