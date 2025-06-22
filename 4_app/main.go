@@ -21,7 +21,7 @@ Menu:
 		case 2:
 			findAccount(vault)
 		case 3:
-			deleteAccount()
+			deleteAccount(vault)
 		default:
 			break Menu
 		}
@@ -54,9 +54,9 @@ func getNewAccountData(vault *account.Vault) {
 }
 
 func findAccount(vault *account.Vault) {
-	userAccountUrl := promptData("Enter a URL for searching")
+	urlAccount := promptData("Enter the URL for searching")
 
-	foundAccounts := vault.FindAccountByUrl(&userAccountUrl)
+	foundAccounts := vault.FindAccountByUrl(urlAccount)
 	if len(foundAccounts) == 0 {
 		fmt.Println("The accounts not found")
 	}
@@ -66,8 +66,15 @@ func findAccount(vault *account.Vault) {
 	}
 }
 
-func deleteAccount() {
-	//
+func deleteAccount(vault *account.Vault) {
+	urlAccount := promptData("Enter the URL for searching")
+	isDeleted := vault.DeleteAccountByUrl(urlAccount)
+
+	if isDeleted {
+		fmt.Println("Account was successfully deleted")
+	} else {
+		fmt.Println("Account not found")
+	}
 }
 
 func promptData(prompt string) (userInput string) {
