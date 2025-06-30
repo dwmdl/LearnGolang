@@ -2,13 +2,15 @@ package main
 
 import (
 	"PurpleSchool/app-4/account"
+	"PurpleSchool/app-4/files"
+	"PurpleSchool/app-4/output"
 	"fmt"
 )
 
 const appName = "Password Manager"
 
 func main() {
-	vault := account.NewVault()
+	vault := account.NewVault(files.NewJsonDB(files.FileName))
 	fmt.Printf("Welcome to %s \n", appName)
 
 Menu:
@@ -39,7 +41,7 @@ func userMenu() (userChoice int) {
 	return
 }
 
-func getNewAccountData(vault *account.Vault) {
+func getNewAccountData(vault *account.VaultWithDB) {
 	userLogin := promptData("Enter your login: ")
 	userURL := promptData("Enter URL: ")
 	userPassword := promptData("Enter password: ")
@@ -53,12 +55,12 @@ func getNewAccountData(vault *account.Vault) {
 	newAccount.OutputData()
 }
 
-func findAccount(vault *account.Vault) {
+func findAccount(vault *account.VaultWithDB) {
 	urlAccount := promptData("Enter the URL for searching")
 
 	foundAccounts := vault.FindAccountByUrl(urlAccount)
 	if len(foundAccounts) == 0 {
-		fmt.Println("The accounts not found")
+		output.PrintError("Account not found")
 	}
 
 	for _, acc := range foundAccounts {
@@ -66,14 +68,14 @@ func findAccount(vault *account.Vault) {
 	}
 }
 
-func deleteAccount(vault *account.Vault) {
+func deleteAccount(vault *account.VaultWithDB) {
 	urlAccount := promptData("Enter the URL for searching")
 	isDeleted := vault.DeleteAccountByUrl(urlAccount)
 
 	if isDeleted {
 		fmt.Println("Account was successfully deleted")
 	} else {
-		fmt.Println("Account not found")
+		output.PrintError("Account not found")
 	}
 }
 

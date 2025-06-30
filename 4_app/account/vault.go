@@ -1,42 +1,65 @@
 package account
 
 import (
-	"PurpleSchool/app-4/files"
+	"PurpleSchool/app-4/output"
 	"encoding/json"
-	"fmt"
 	"strings"
 	"time"
 )
+
+type ByteReader interface {
+	Read() ([]byte, error)
+}
+
+type ByteWriter interface {
+	Write([]byte)
+}
+
+type DB interface {
+	ByteReader
+	ByteWriter
+}
 
 type Vault struct {
 	Accounts  []Account `json:"accounts,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
 
-func NewVault() *Vault {
-	file, err := files.ReadFile(files.FileName)
+type VaultWithDB struct {
+	Vault
+	db DB
+}
+
+func NewVault(db DB) *VaultWithDB {
+	file, err := db.Read()
 	if err != nil {
-		return &Vault{
-			Accounts:  []Account{},
-			UpdatedAt: time.Now(),
+		return &VaultWithDB{
+			Vault: Vault{
+				Accounts:  []Account{},
+				UpdatedAt: time.Now(),
+			},
+			db: db,
 		}
 	}
 
 	var vault Vault
 	err = json.Unmarshal(file, &vault)
 	if err != nil {
-		fmt.Println(err)
+		output.PrintError(err)
 	}
 
-	return &vault
+	return &VaultWithDB{
+		Vault: vault,
+		db:    db,
+	}
 }
 
-func (vault *Vault) AddAccount(acc Account) {
+func (vault *VaultWithDB) AddAccount(acc Account) {
 	vault.Accounts = append(vault.Accounts, acc)
 	vault.save()
 }
 
-func (vault *Vault) FindAccountByUrl(url string) (accounts []Account) {
+func (vault *VaultWithDB) FindAccountByUrl(url string) (accounts []Account) {
 	for _, account := range vault.Accounts {
 		if strings.Contains(account.Url, url) {
 			accounts = append(accounts, account)
@@ -46,7 +69,7 @@ func (vault *Vault) FindAccountByUrl(url string) (accounts []Account) {
 	return
 }
 
-func (vault *Vault) DeleteAccountByUrl(url string) (isDeleted bool) {
+func (vault *VaultWithDB) DeleteAccountByUrl(url string) (isDeleted bool) {
 	var accounts []Account
 
 	for _, account := range vault.Accounts {
@@ -73,13 +96,13 @@ func (vault *Vault) ToByteSlice() ([]byte, error) {
 	return data, nil
 }
 
-func (vault *Vault) save() {
+func (vault *VaultWithDB) save() {
 	vault.UpdatedAt = time.Now()
 
-	data, err := vault.ToByteSlice()
+	data, err := vault.Vault.ToByteSlice()
 	if err != nil {
-		fmt.Println(err)
+		output.PrintError(err)
 	}
 
-	files.WriteFile(data, files.FileName)
+	vault.db.Write(data)
 }
