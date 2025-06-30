@@ -61,7 +61,8 @@ func (acc *Account) generatePassword(passwordLength int) {
 }
 
 func (acc *Account) OutputData() {
-	fmt.Printf("Your login: %s \n", acc.Login)
+	fmt.Print("\nACCOUNT DATA")
+	fmt.Printf("\nYour login: %s \n", acc.Login)
 	fmt.Printf("Your password: %s \n", acc.Password)
-	fmt.Printf("URL: %s \n", acc.Url)
+	fmt.Printf("URL: %s \n\n", acc.Url)
 }

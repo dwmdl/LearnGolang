@@ -1,6 +1,8 @@
 package output
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func PrintError(value any) {
 	switch value.(type) {
