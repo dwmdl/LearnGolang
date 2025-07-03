@@ -9,6 +9,12 @@ import (
 
 const appName = "Password Manager"
 
+var menu = map[string]func(db *account.VaultWithDB){
+	"1": getNewAccountData,
+	"2": findAccount,
+	"3": deleteAccount,
+}
+
 func main() {
 	vault := account.NewVault(files.NewJsonDB(files.FileName))
 	fmt.Printf("Welcome to %s \n\n", appName)
@@ -23,16 +29,12 @@ Menu:
 			"Select one of the items",
 		})
 
-		switch userMenuChoice {
-		case "1":
-			getNewAccountData(vault)
-		case "2":
-			findAccount(vault)
-		case "3":
-			deleteAccount(vault)
-		default:
+		menuFunc := menu[userMenuChoice]
+		if menuFunc == nil {
 			break Menu
 		}
+
+		menuFunc(vault)
 	}
 }
 
