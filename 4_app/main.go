@@ -5,14 +5,16 @@ import (
 	"PurpleSchool/app-4/files"
 	"PurpleSchool/app-4/output"
 	"fmt"
+	"strings"
 )
 
 const appName = "Password Manager"
 
-var menu = map[string]func(db *account.VaultWithDB){
+var menu = map[string]func(*account.VaultWithDB){
 	"1": getNewAccountData,
-	"2": findAccount,
-	"3": deleteAccount,
+	"2": findAccountByURL,
+	"3": findAccountByLogin,
+	"4": deleteAccount,
 }
 
 func main() {
@@ -23,9 +25,10 @@ Menu:
 	for {
 		userMenuChoice := promptData([]string{
 			"1. Create an account",
-			"2. Find an account",
-			"3. Delete an account",
-			"4. Exit\n",
+			"2. Find an account by URL",
+			"3. Find an account by Login",
+			"4. Delete an account",
+			"5. Exit\n",
 			"Select one of the items",
 		})
 
@@ -52,15 +55,32 @@ func getNewAccountData(vault *account.VaultWithDB) {
 	newAccount.OutputData()
 }
 
-func findAccount(vault *account.VaultWithDB) {
-	urlAccount := promptData([]string{"\nEnter the URL for searching"})
+func findAccountByURL(vault *account.VaultWithDB) {
+	urlAccount := promptData([]string{"Enter the URL for searching"})
 
-	foundAccounts := vault.FindAccountByUrl(urlAccount)
-	if len(foundAccounts) == 0 {
+	foundAccounts := vault.FindAccounts(urlAccount, func(acc account.Account, str string) bool {
+		return strings.Contains(acc.Url, str)
+	})
+
+	outputFindingResult(&foundAccounts)
+}
+
+func findAccountByLogin(vault *account.VaultWithDB) {
+	login := promptData([]string{"Enter the login for searching"})
+
+	foundAccounts := vault.FindAccounts(login, func(acc account.Account, str string) bool {
+		return strings.Contains(acc.Login, str)
+	})
+
+	outputFindingResult(&foundAccounts)
+}
+
+func outputFindingResult(foundAccounts *[]account.Account) {
+	if len(*foundAccounts) == 0 {
 		output.PrintError("Account not found")
 	}
 
-	for _, acc := range foundAccounts {
+	for _, acc := range *foundAccounts {
 		acc.OutputData()
 	}
 }
