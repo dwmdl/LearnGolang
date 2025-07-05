@@ -1,7 +1,7 @@
 package account
 
 import (
-	"PurpleSchool/app-4/utils"
+	"PurpleSchool/passwordManager/utils"
 	"errors"
 	"fmt"
 	"math/rand/v2"

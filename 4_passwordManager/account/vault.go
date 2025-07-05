@@ -1,7 +1,7 @@
 package account
 
 import (
-	"PurpleSchool/app-4/encrypter"
+	"PurpleSchool/passwordManager/encrypter"
 	"encoding/json"
 	"fmt"
 	"strings"

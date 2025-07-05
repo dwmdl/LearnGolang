@@ -1,9 +1,9 @@
 package main
 
 import (
-	"PurpleSchool/app-4/account"
-	"PurpleSchool/app-4/encrypter"
-	"PurpleSchool/app-4/files"
+	"PurpleSchool/passwordManager/account"
+	"PurpleSchool/passwordManager/encrypter"
+	"PurpleSchool/passwordManager/files"
 	"fmt"
 	"github.com/joho/godotenv"
 	"strings"

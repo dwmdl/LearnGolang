@@ -1,4 +1,4 @@
-module PurpleSchool/app-4
+module PurpleSchool/passwordManager
 
 go 1.24.3
 
