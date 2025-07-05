@@ -23,14 +23,14 @@ func main() {
 
 Menu:
 	for {
-		userMenuChoice := promptData([]string{
+		userMenuChoice := promptData(
 			"1. Create an account",
 			"2. Find an account by URL",
 			"3. Find an account by Login",
 			"4. Delete an account",
 			"5. Exit\n",
 			"Select one of the items",
-		})
+		)
 
 		menuFunc := menu[userMenuChoice]
 		if menuFunc == nil {
@@ -41,10 +41,27 @@ Menu:
 	}
 }
 
+func promptData(prompt ...any) (userInput string) {
+	for i, line := range prompt {
+		if i == len(prompt)-1 {
+			fmt.Printf("%v: ", line)
+		} else {
+			fmt.Println(line)
+		}
+	}
+
+	_, err := fmt.Scanln(&userInput)
+	if err != nil {
+		output.PrintError(err)
+	}
+
+	return
+}
+
 func getNewAccountData(vault *account.VaultWithDB) {
-	userLogin := promptData([]string{"Enter your login: "})
-	userURL := promptData([]string{"Enter URL: "})
-	userPassword := promptData([]string{"Enter password: "})
+	userLogin := promptData("Enter your login: ")
+	userURL := promptData("Enter URL: ")
+	userPassword := promptData("Enter password: ")
 
 	newAccount, err := account.NewAccount(userLogin, userPassword, userURL)
 	if err != nil {
@@ -56,7 +73,7 @@ func getNewAccountData(vault *account.VaultWithDB) {
 }
 
 func findAccountByURL(vault *account.VaultWithDB) {
-	urlAccount := promptData([]string{"Enter the URL for searching"})
+	urlAccount := promptData("Enter the URL for searching")
 
 	foundAccounts := vault.FindAccounts(urlAccount, func(acc account.Account, str string) bool {
 		return strings.Contains(acc.Url, str)
@@ -66,7 +83,7 @@ func findAccountByURL(vault *account.VaultWithDB) {
 }
 
 func findAccountByLogin(vault *account.VaultWithDB) {
-	login := promptData([]string{"Enter the login for searching"})
+	login := promptData("Enter the login for searching")
 
 	foundAccounts := vault.FindAccounts(login, func(acc account.Account, str string) bool {
 		return strings.Contains(acc.Login, str)
@@ -86,7 +103,7 @@ func outputFindingResult(foundAccounts *[]account.Account) {
 }
 
 func deleteAccount(vault *account.VaultWithDB) {
-	urlAccount := promptData([]string{"Enter the URL for searching"})
+	urlAccount := promptData("Enter the URL for searching")
 	isDeleted := vault.DeleteAccountByUrl(urlAccount)
 
 	if isDeleted {
@@ -94,17 +111,4 @@ func deleteAccount(vault *account.VaultWithDB) {
 	} else {
 		output.PrintError("Account not found")
 	}
-}
-
-func promptData[T any](prompt []T) (userInput string) {
-	for i, line := range prompt {
-		if i == len(prompt)-1 {
-			fmt.Printf("%v: ", line)
-		} else {
-			fmt.Println(line)
-		}
-	}
-
-	fmt.Scanln(&userInput)
-	return
 }
