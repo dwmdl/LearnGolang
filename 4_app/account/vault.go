@@ -1,8 +1,8 @@
 package account
 
 import (
-	"PurpleSchool/app-4/output"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 )
@@ -45,7 +45,7 @@ func NewVault(db DB) *VaultWithDB {
 	var vault Vault
 	err = json.Unmarshal(file, &vault)
 	if err != nil {
-		output.PrintError(err)
+		fmt.Println(err)
 	}
 
 	return &VaultWithDB{
@@ -101,7 +101,7 @@ func (vault *VaultWithDB) save() {
 
 	data, err := vault.Vault.ToByteSlice()
 	if err != nil {
-		output.PrintError(err)
+		fmt.Println(err)
 	}
 
 	vault.db.Write(data)

@@ -3,8 +3,8 @@ package main
 import (
 	"PurpleSchool/app-4/account"
 	"PurpleSchool/app-4/files"
-	"PurpleSchool/app-4/output"
 	"fmt"
+	"github.com/joho/godotenv"
 	"strings"
 )
 
@@ -18,6 +18,11 @@ var menu = map[string]func(*account.VaultWithDB){
 }
 
 func main() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		fmt.Println("Unable to found ENV file")
+	}
+
 	vault := account.NewVault(files.NewJsonDB(files.FileName))
 	fmt.Printf("Welcome to %s \n\n", appName)
 
@@ -52,7 +57,7 @@ func promptData(prompt ...any) (userInput string) {
 
 	_, err := fmt.Scanln(&userInput)
 	if err != nil {
-		output.PrintError(err)
+		fmt.Println(err)
 	}
 
 	return
@@ -94,7 +99,7 @@ func findAccountByLogin(vault *account.VaultWithDB) {
 
 func outputFindingResult(foundAccounts *[]account.Account) {
 	if len(*foundAccounts) == 0 {
-		output.PrintError("Account not found")
+		fmt.Println("Account not found")
 	}
 
 	for _, acc := range *foundAccounts {
@@ -109,6 +114,6 @@ func deleteAccount(vault *account.VaultWithDB) {
 	if isDeleted {
 		fmt.Println("Account was successfully deleted")
 	} else {
-		output.PrintError("Account not found")
+		fmt.Println("Account not found")
 	}
 }
