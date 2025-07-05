@@ -1,6 +1,7 @@
 package account
 
 import (
+	"PurpleSchool/app-4/encrypter"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -27,10 +28,11 @@ type Vault struct {
 
 type VaultWithDB struct {
 	Vault
-	db DB
+	db  DB
+	enc encrypter.Encrypter
 }
 
-func NewVault(db DB) *VaultWithDB {
+func NewVault(db DB, enc encrypter.Encrypter) *VaultWithDB {
 	file, err := db.Read()
 	if err != nil {
 		return &VaultWithDB{
@@ -38,19 +40,24 @@ func NewVault(db DB) *VaultWithDB {
 				Accounts:  []Account{},
 				UpdatedAt: time.Now(),
 			},
-			db: db,
+			db:  db,
+			enc: enc,
 		}
 	}
 
 	var vault Vault
-	err = json.Unmarshal(file, &vault)
+	data := enc.Decrypt(file)
+	err = json.Unmarshal(data, &vault)
 	if err != nil {
 		fmt.Println(err)
 	}
 
+	fmt.Printf("Found %d account(s)\n\n", len(vault.Accounts))
+
 	return &VaultWithDB{
 		Vault: vault,
 		db:    db,
+		enc:   enc,
 	}
 }
 
@@ -87,6 +94,18 @@ func (vault *VaultWithDB) DeleteAccountByUrl(url string) (isDeleted bool) {
 	return
 }
 
+func (vault *VaultWithDB) save() {
+	vault.UpdatedAt = time.Now()
+
+	data, err := vault.ToByteSlice()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	encData := vault.enc.Encrypt(data)
+	vault.db.Write(encData)
+}
+
 func (vault *Vault) ToByteSlice() ([]byte, error) {
 	data, err := json.Marshal(vault)
 	if err != nil {
@@ -94,15 +113,4 @@ func (vault *Vault) ToByteSlice() ([]byte, error) {
 	}
 
 	return data, nil
-}
-
-func (vault *VaultWithDB) save() {
-	vault.UpdatedAt = time.Now()
-
-	data, err := vault.Vault.ToByteSlice()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	vault.db.Write(data)
 }

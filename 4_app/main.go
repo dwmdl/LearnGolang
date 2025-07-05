@@ -2,6 +2,7 @@ package main
 
 import (
 	"PurpleSchool/app-4/account"
+	"PurpleSchool/app-4/encrypter"
 	"PurpleSchool/app-4/files"
 	"fmt"
 	"github.com/joho/godotenv"
@@ -23,8 +24,9 @@ func main() {
 		fmt.Println("Unable to found ENV file")
 	}
 
-	vault := account.NewVault(files.NewJsonDB(files.FileName))
 	fmt.Printf("Welcome to %s \n\n", appName)
+
+	vault := account.NewVault(files.NewJsonDB(files.FileName), *encrypter.NewEncrypter())
 
 Menu:
 	for {

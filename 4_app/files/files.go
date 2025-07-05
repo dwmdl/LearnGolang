@@ -15,7 +15,7 @@ func NewJsonDB(file string) *JsonDB {
 	}
 }
 
-const FileName = "password.json"
+const FileName = "data.vault"
 
 func (db *JsonDB) Write(content []byte) {
 	file, err := os.Create(db.fileName)
@@ -35,7 +35,6 @@ func (db *JsonDB) Write(content []byte) {
 func (db *JsonDB) Read() ([]byte, error) {
 	data, err := os.ReadFile(db.fileName)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
