@@ -18,6 +18,10 @@ func main() {
 		panic("ERROR_WHILE_GETTING_LOCATION")
 	}
 
-	weatherData := locWeather.GetLocationWeather(*geoData, *format)
+	weatherData, err := locWeather.GetLocationWeather(*geoData, *format)
+	if err != nil {
+		panic(err)
+	}
+
 	fmt.Printf("Weather in your location: %s", weatherData)
 }
