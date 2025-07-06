@@ -19,5 +19,5 @@ func main() {
 	}
 
 	weatherData := locWeather.GetLocationWeather(*geoData, *format)
-	fmt.Println(weatherData)
+	fmt.Printf("Weather in your location: %s", weatherData)
 }
