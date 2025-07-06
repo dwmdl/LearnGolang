@@ -17,6 +17,9 @@ type CityValidateResponse struct {
 	Error bool `json:"error"`
 }
 
+var ErrNoCity = errors.New("NO_CITY")
+var ErrNot200 = errors.New("NO_200_CODE_RESPONSE")
+
 const cityValidateUrl = "https://countriesnow.space/api/v0.1/countries/population/cities"
 const getUserLocationUrl = "https://ipapi.co/json/"
 
@@ -24,7 +27,7 @@ func GetMyLocation(city string) (*Data, error) {
 	if city != "" {
 		successValidateCity := validateCity(city)
 		if !successValidateCity {
-			panic("CITY_NOT_FOUND")
+			return nil, ErrNoCity
 		}
 		return &Data{
 			City: city,
@@ -47,7 +50,7 @@ func GetMyLocation(city string) (*Data, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return nil, errors.New(resp.Status)
+		return nil, ErrNot200
 	}
 
 	body, err := io.ReadAll(resp.Body)
