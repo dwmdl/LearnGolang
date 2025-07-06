@@ -8,10 +8,10 @@ import (
 	"net/url"
 )
 
-const getWeatherByLocationUrl = "https://wttr.in/"
+const weatherLocationURL = "https://wttr.in/"
 
 func GetLocationWeather(geo geo.Data, format int) string {
-	baseUrl, err := url.Parse(getWeatherByLocationUrl + geo.City)
+	baseUrl, err := url.Parse(weatherLocationURL + geo.City)
 	if err != nil {
 		fmt.Println(err.Error())
 		return ""
