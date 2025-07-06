@@ -10,7 +10,7 @@ import (
 
 const getWeatherByLocationUrl = "https://wttr.in/"
 
-func GetLocationWeather(geo geo.Data, format int64) string {
+func GetLocationWeather(geo geo.Data, format int) string {
 	baseUrl, err := url.Parse(getWeatherByLocationUrl + geo.City)
 	if err != nil {
 		fmt.Println(err.Error())

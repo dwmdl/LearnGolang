@@ -9,7 +9,7 @@ import (
 
 func main() {
 	city := flag.String("city", "", "User city")
-	format := flag.Int64("format", 1, "Output format")
+	format := flag.Int("format", 1, "Output format")
 	flag.Parse()
 
 	geoData, err := geo.GetMyLocation(*city)
