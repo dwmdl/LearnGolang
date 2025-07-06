@@ -31,17 +31,29 @@ func GetMyLocation(city string) (*Data, error) {
 		}, nil
 	}
 
-	response, err := http.Get(getUserLocationUrl)
+	req, err := http.NewRequest("GET", getUserLocationUrl, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	if response.StatusCode != 200 {
-		return nil, errors.New(response.Status)
+	req.Header.Set("User-Agent", "Mozilla/5.0")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
 	}
 
-	defer response.Body.Close()
-	body, err := io.ReadAll(response.Body)
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return nil, errors.New(resp.Status)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	var geo Data
 	err = json.Unmarshal(body, &geo)
