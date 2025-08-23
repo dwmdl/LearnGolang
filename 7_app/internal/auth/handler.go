@@ -3,6 +3,7 @@ package auth
 import (
 	"api/configs"
 	"api/pkg/response"
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -30,6 +31,14 @@ func (handler *Handler) Register() http.HandlerFunc {
 
 func (*Handler) Login() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
+		var payload LoginRequest
+
+		err := json.NewDecoder(req.Body).Decode(&payload)
+		if err != nil {
+			response.Json(w, err.Error(), 402)
+		}
+		fmt.Println(payload)
+
 		res := LoginResponse{Token: "123"}
 		response.Json(w, res, 200)
 	}
