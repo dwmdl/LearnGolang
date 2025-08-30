@@ -11,7 +11,7 @@ import (
 func main() {
 	config := configs.LoadConfig()
 	router := http.NewServeMux()
-	_ := db.NewDb(config)
+	_ = db.NewDb(config)
 
 	auth.NewAuthHandler(router, auth.HandlerDeps{Config: config})
 
