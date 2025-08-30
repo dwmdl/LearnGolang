@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	transactions := []float64{}
+	var transactions []float64
 
 	for {
 		transaction := getTransaction()
@@ -24,7 +24,11 @@ func main() {
 
 func getTransaction() (transaction float64) {
 	fmt.Println("Enter your transaction or 0 for exit: ")
-	fmt.Scan(&transaction)
+	_, err := fmt.Scan(&transaction)
+	if err != nil {
+		panic(err)
+	}
+
 	return
 }
 
