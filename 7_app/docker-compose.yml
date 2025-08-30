@@ -1,0 +1,10 @@
+services:
+  postgres:
+    image: postgres:16.4
+    container_name: postgres_go
+    volumes:
+      - ./docker/volumes/postgres/data:data/postgres
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
