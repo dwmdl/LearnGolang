@@ -3,6 +3,7 @@ package main
 import (
 	"api/configs"
 	"api/internal/auth"
+	"api/pkg/db"
 	"fmt"
 	"net/http"
 )
@@ -10,6 +11,8 @@ import (
 func main() {
 	config := configs.LoadConfig()
 	router := http.NewServeMux()
+	_ := db.NewDb(config)
+
 	auth.NewAuthHandler(router, auth.HandlerDeps{Config: config})
 
 	server := http.Server{
