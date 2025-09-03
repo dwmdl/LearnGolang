@@ -2,14 +2,18 @@ package link
 
 import (
 	"math/rand"
+	"time"
 
 	"gorm.io/gorm"
 )
 
 type Link struct {
-	gorm.Model
-	Url  string `json:"url"`
-	Hash string `json:"hash" gorm:"uniqueIndex"`
+	ID        uint           `gorm:"primaryKey;autoIncrement"`
+	Url       string         `gorm:"column:url" json:"url"`
+	Hash      string         `gorm:"column:hash;uniqueIndex" json:"hash"`
+	CreatedAt time.Time      `gorm:"column:created_at"`
+	UpdatedAt time.Time      `gorm:"column:updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index;column:deleted_at"`
 }
 
 func NewLink(url string) *Link {

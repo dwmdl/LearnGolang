@@ -3,6 +3,7 @@ package main
 import (
 	"api/configs"
 	"api/internal/auth"
+	"api/internal/link"
 	"api/pkg/db"
 	"fmt"
 	"net/http"
@@ -11,9 +12,14 @@ import (
 func main() {
 	config := configs.LoadConfig()
 	router := http.NewServeMux()
-	_ = db.NewDb(config)
+	database := db.NewDb(config)
 
+	// Repositories
+	linkRepo := link.NewRepository(database)
+
+	// Handlers
 	auth.NewAuthHandler(router, auth.HandlerDeps{Config: config})
+	link.NewLinkHandler(router, link.HandlerDeps{LinkRepo: linkRepo})
 
 	server := http.Server{
 		Addr:    ":8081",
