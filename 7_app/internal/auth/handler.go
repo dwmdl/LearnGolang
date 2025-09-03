@@ -26,7 +26,7 @@ func (*Handler) Register() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		body, err := request.HandleBody[RegisterRequest](&w, req)
 		if err != nil {
-			response.Json(w, err.Error(), 402)
+			response.Json(w, err.Error(), http.StatusBadRequest)
 		}
 
 		fmt.Println(*body)
@@ -37,13 +37,13 @@ func (*Handler) Login() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		body, err := request.HandleBody[LoginRequest](&w, req)
 		if err != nil {
-			response.Json(w, err.Error(), 402)
+			response.Json(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		fmt.Println(*body)
 
 		res := LoginResponse{Token: "123"}
-		response.Json(w, res, 200)
+		response.Json(w, res, http.StatusOK)
 	}
 }
