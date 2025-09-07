@@ -40,9 +40,16 @@ func (handler *Handler) Create() http.HandlerFunc {
 	}
 }
 
-func (*Handler) GoTo() http.HandlerFunc {
+func (handler *Handler) GoTo() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		hash := r.PathValue("hash")
+		link, err := handler.LinkRepo.GetByHash(hash)
+		if err != nil {
+			response.Json(w, err, http.StatusNotFound)
+			return
+		}
 
+		http.Redirect(w, r, link.Url, http.StatusTemporaryRedirect)
 	}
 }
 
@@ -52,7 +59,7 @@ func (handler *Handler) Update() http.HandlerFunc {
 	}
 }
 
-func (*Handler) Delete() http.HandlerFunc {
+func (handler *Handler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 	}
