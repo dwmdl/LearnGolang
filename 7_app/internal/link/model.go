@@ -8,12 +8,12 @@ import (
 )
 
 type Link struct {
-	ID        uint           `gorm:"primaryKey;autoIncrement"`
+	ID        uint           `gorm:"primaryKey;autoIncrement" json:"id"`
 	Url       string         `gorm:"column:url" json:"url"`
 	Hash      string         `gorm:"column:hash;uniqueIndex" json:"hash"`
-	CreatedAt time.Time      `gorm:"column:created_at"`
-	UpdatedAt time.Time      `gorm:"column:updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index;column:deleted_at"`
+	CreatedAt time.Time      `gorm:"column:created_at" json:"-"`
+	UpdatedAt time.Time      `gorm:"column:updated_at" json:"-"`
+	DeletedAt gorm.DeletedAt `gorm:"index;column:deleted_at" json:"-"`
 }
 
 func NewLink(url string) *Link {
