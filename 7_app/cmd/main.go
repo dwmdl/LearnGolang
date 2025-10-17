@@ -25,7 +25,6 @@ func main() {
 	// Middlewares
 	middlewareStack := middleware.Chain(
 		middleware.CORS,
-		middleware.IsAuthed,
 		middleware.Logging,
 	)
 
