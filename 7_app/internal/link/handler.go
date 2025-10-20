@@ -16,7 +16,7 @@ type Handler struct {
 	Repository *Repository
 }
 
-func NewLinkHandler(router *http.ServeMux, deps HandlerDeps) {
+func NewHandler(router *http.ServeMux, deps HandlerDeps) {
 	handler := &Handler{deps.LinkRepo}
 	router.HandleFunc("POST /link", handler.Create())
 	router.Handle("PATCH /link/{id}", middleware.IsAuthed(handler.Update()))
