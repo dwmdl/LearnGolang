@@ -2,6 +2,8 @@ package auth
 
 import (
 	"api/internal/user"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Service struct {
@@ -18,13 +20,18 @@ func (service *Service) Register(email, password, name string) (string, error) {
 		return "", ErrUserExists
 	}
 
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+
 	userModel := &user.User{
 		Email:    email,
 		Name:     name,
-		Password: "",
+		Password: string(hashedPassword),
 	}
 
-	_, err := service.UserRepository.Create(userModel)
+	_, err = service.UserRepository.Create(userModel)
 	if err != nil {
 		return "", err
 	}
