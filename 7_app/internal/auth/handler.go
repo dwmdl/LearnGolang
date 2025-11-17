@@ -4,7 +4,6 @@ import (
 	"api/configs"
 	"api/pkg/request"
 	"api/pkg/response"
-	"fmt"
 	"net/http"
 )
 
@@ -41,7 +40,7 @@ func (handler *Handler) Register() http.HandlerFunc {
 	}
 }
 
-func (*Handler) Login() http.HandlerFunc {
+func (handler *Handler) Login() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		body, err := request.HandleBody[LoginRequest](&w, req)
 		if err != nil {
@@ -49,9 +48,12 @@ func (*Handler) Login() http.HandlerFunc {
 			return
 		}
 
-		fmt.Println(*body)
+		loginUser, err := handler.Service.Login(body.Email, body.Password)
+		if err != nil {
+			response.Json(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
-		res := LoginResponse{Token: "123"}
-		response.Json(w, res, http.StatusOK)
+		response.Json(w, loginUser, http.StatusOK)
 	}
 }
