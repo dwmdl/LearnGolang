@@ -31,23 +31,24 @@ func (service *Service) Register(email, password, name string) (string, error) {
 		Password: string(hashedPassword),
 	}
 
-	_, err = service.UserRepository.Create(userModel)
+	newUser, err := service.UserRepository.Create(userModel)
 	if err != nil {
 		return "", err
 	}
-	return userModel.Email, nil
+
+	return newUser.Email, nil
 }
 
-func (service *Service) Login(email, password string) (*user.User, error) {
+func (service *Service) Login(email, password string) (string, error) {
 	foundUser, _ := service.UserRepository.GetByEmail(email)
 	if foundUser == nil {
-		return nil, ErrUserDoesntExists
+		return "", ErrUserDoesntExists
 	}
 
 	err := bcrypt.CompareHashAndPassword([]byte(foundUser.Password), []byte(password))
 	if err != nil {
-		return nil, ErrWrongCredentials
+		return "", ErrWrongCredentials
 	}
 
-	return foundUser, nil
+	return foundUser.Email, nil
 }
