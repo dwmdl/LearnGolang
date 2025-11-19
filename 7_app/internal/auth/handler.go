@@ -2,6 +2,7 @@ package auth
 
 import (
 	"api/configs"
+	"api/pkg/jwt"
 	"api/pkg/request"
 	"api/pkg/response"
 	"net/http"
@@ -31,12 +32,24 @@ func (handler *Handler) Register() http.HandlerFunc {
 		body, err := request.HandleBody[RegisterRequest](&w, req)
 		if err != nil {
 			response.Json(w, err.Error(), http.StatusBadRequest)
+			return
 		}
 
-		_, err = handler.Service.Register(body.Email, body.Password, body.Name)
+		email, err := handler.Service.Register(body.Email, body.Password, body.Name)
 		if err != nil {
 			response.Json(w, err.Error(), http.StatusBadRequest)
+			return
 		}
+
+		token, err := jwt.NewJWT(handler.Config.Auth.Secret).Create(email)
+		if err != nil {
+			response.Json(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		data := RegisterResponse{Token: token}
+
+		response.Json(w, data, http.StatusOK)
 	}
 }
 
@@ -48,12 +61,22 @@ func (handler *Handler) Login() http.HandlerFunc {
 			return
 		}
 
-		loginUser, err := handler.Service.Login(body.Email, body.Password)
+		email, err := handler.Service.Login(body.Email, body.Password)
 		if err != nil {
 			response.Json(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		response.Json(w, loginUser, http.StatusOK)
+		token, err := jwt.NewJWT(handler.Config.Auth.Secret).Create(email)
+		if err != nil {
+			response.Json(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		data := LoginResponse{
+			Token: token,
+		}
+
+		response.Json(w, data, http.StatusOK)
 	}
 }
