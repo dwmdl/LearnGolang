@@ -28,7 +28,10 @@ func main() {
 		Config:  config,
 		Service: authService,
 	})
-	link.NewHandler(router, link.HandlerDeps{LinkRepo: linkRepo})
+	link.NewHandler(router, link.HandlerDeps{
+		LinkRepo: linkRepo,
+		Config:   config,
+	})
 
 	// Middlewares
 	middlewareStack := middleware.Chain(

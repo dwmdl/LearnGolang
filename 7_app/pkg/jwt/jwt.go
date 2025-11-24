@@ -2,6 +2,10 @@ package jwt
 
 import "github.com/golang-jwt/jwt/v5"
 
+type Data struct {
+	Email string
+}
+
 type JWT struct {
 	Secret string
 }
@@ -12,8 +16,8 @@ func NewJWT(secret string) *JWT {
 	}
 }
 
-func (j *JWT) Create(email string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"email": email})
+func (j *JWT) Create(data Data) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"email": data.Email})
 
 	s, err := token.SignedString([]byte(j.Secret))
 	if err != nil {
@@ -21,4 +25,16 @@ func (j *JWT) Create(email string) (string, error) {
 	}
 
 	return s, nil
+}
+
+func (j *JWT) Parse(token string) (bool, *Data) {
+	t, err := jwt.Parse(token, func(token *jwt.Token) (any, error) {
+		return []byte(j.Secret), nil
+	})
+	if err != nil {
+		return false, nil
+	}
+
+	email := t.Claims.(jwt.MapClaims)["email"].(string)
+	return t.Valid, &Data{Email: email}
 }
