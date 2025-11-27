@@ -5,6 +5,7 @@ import (
 	"api/pkg/middleware"
 	"api/pkg/request"
 	"api/pkg/response"
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -91,6 +92,12 @@ func (handler *Handler) Update() http.HandlerFunc {
 		if err != nil {
 			response.Json(w, err.Error(), http.StatusBadRequest)
 		}
+
+		ctxValue, ok := r.Context().Value(middleware.ContextEmailKey).(string)
+		if !ok {
+			response.Json(w, "Server error", http.StatusInternalServerError)
+		}
+		fmt.Println(ctxValue)
 
 		response.Json(w, link, http.StatusOK)
 	}
