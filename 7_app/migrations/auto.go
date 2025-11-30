@@ -2,6 +2,7 @@ package main
 
 import (
 	"api/internal/link"
+	"api/internal/stat"
 	"api/internal/user"
 	"os"
 
@@ -27,6 +28,11 @@ func main() {
 	}
 
 	err = db.AutoMigrate(&user.User{})
+	if err != nil {
+		panic(err)
+	}
+
+	err = db.AutoMigrate(&stat.Stat{})
 	if err != nil {
 		panic(err)
 	}

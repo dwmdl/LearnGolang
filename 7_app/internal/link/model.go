@@ -1,6 +1,7 @@
 package link
 
 import (
+	"api/internal/stat"
 	"math/rand"
 	"time"
 
@@ -11,6 +12,7 @@ type Link struct {
 	ID        uint           `gorm:"primaryKey;autoIncrement" json:"id"`
 	Url       string         `gorm:"column:url" json:"url"`
 	Hash      string         `gorm:"column:hash;uniqueIndex" json:"hash"`
+	Stats     []stat.Stat    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	CreatedAt time.Time      `gorm:"column:created_at" json:"-"`
 	UpdatedAt time.Time      `gorm:"column:updated_at" json:"-"`
 	DeletedAt gorm.DeletedAt `gorm:"index;column:deleted_at" json:"-"`
