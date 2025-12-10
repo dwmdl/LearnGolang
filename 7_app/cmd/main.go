@@ -4,6 +4,7 @@ import (
 	"api/configs"
 	"api/internal/auth"
 	"api/internal/link"
+	"api/internal/stat"
 	"api/internal/user"
 	"api/pkg/db"
 	"api/pkg/event"
@@ -21,9 +22,14 @@ func main() {
 	// Repositories
 	linkRepo := link.NewRepository(database)
 	userRepo := user.NewRepository(database)
+	statRepo := stat.NewRepository(database)
 
 	//Services
 	authService := auth.NewService(userRepo)
+	eventService := stat.NewService(&stat.ServiceDeps{
+		EventBus:   eventBus,
+		Repository: statRepo,
+	})
 
 	// Handlers
 	auth.NewHandler(router, auth.HandlerDeps{
@@ -46,6 +52,8 @@ func main() {
 		Addr:    ":8081",
 		Handler: middlewareStack(router),
 	}
+
+	go eventService.AddDirection()
 
 	fmt.Println("Server is listening on port 8081")
 
