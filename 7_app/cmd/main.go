@@ -4,9 +4,9 @@ import (
 	"api/configs"
 	"api/internal/auth"
 	"api/internal/link"
-	"api/internal/stat"
 	"api/internal/user"
 	"api/pkg/db"
+	"api/pkg/event"
 	"api/pkg/middleware"
 	"fmt"
 	"net/http"
@@ -16,11 +16,11 @@ func main() {
 	config := configs.LoadConfig()
 	router := http.NewServeMux()
 	database := db.NewDb(config)
+	eventBus := event.NewEventBus()
 
 	// Repositories
 	linkRepo := link.NewRepository(database)
 	userRepo := user.NewRepository(database)
-	statRepo := stat.NewRepository(database)
 
 	//Services
 	authService := auth.NewService(userRepo)
@@ -32,7 +32,7 @@ func main() {
 	})
 	link.NewHandler(router, link.HandlerDeps{
 		LinkRepo: linkRepo,
-		StatRepo: statRepo,
+		EventBus: eventBus,
 		Config:   config,
 	})
 

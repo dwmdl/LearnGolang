@@ -2,7 +2,7 @@ package link
 
 import (
 	"api/configs"
-	"api/pkg/di"
+	"api/pkg/event"
 	"api/pkg/middleware"
 	"api/pkg/request"
 	"api/pkg/response"
@@ -13,17 +13,17 @@ import (
 
 type HandlerDeps struct {
 	LinkRepo *Repository
-	StatRepo di.IStatRepository
 	Config   *configs.Config
+	EventBus *event.Bus
 }
 
 type Handler struct {
-	Repository     *Repository
-	StatRepository di.IStatRepository
+	Repository *Repository
+	EventBus   *event.Bus
 }
 
 func NewHandler(router *http.ServeMux, deps HandlerDeps) {
-	handler := &Handler{deps.LinkRepo, deps.StatRepo}
+	handler := &Handler{deps.LinkRepo, deps.EventBus}
 	router.HandleFunc("POST /link", handler.Create())
 	router.Handle("PATCH /link/{id}", middleware.IsAuthed(handler.Update(), deps.Config))
 	router.HandleFunc("DELETE /link/{id}", handler.Delete())
@@ -68,7 +68,10 @@ func (handler *Handler) GoTo() http.HandlerFunc {
 			response.Json(w, err, http.StatusNotFound)
 			return
 		}
-		handler.StatRepository.AddDirection(link.ID)
+		go handler.EventBus.Publish(event.Event{
+			Type: event.LinkVisited,
+			Data: link.ID,
+		})
 		http.Redirect(w, r, link.Url, http.StatusTemporaryRedirect)
 	}
 }
