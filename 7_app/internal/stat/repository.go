@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
 )
 
 type Repository struct {
@@ -44,9 +45,11 @@ func (repo *Repository) GetStats(by string, from, to time.Time) []GetStatRespons
 		query = "to_char(directions_date, 'YYYY-MM') as period, sum(directions_count) as directions_sum"
 	}
 
-	repo.Database.Table("stats").
+	sessionQuery := repo.Database.Table("stats").
 		Select(query).
-		Where("directions_date between ? and ?", from, to).
+		Session(&gorm.Session{})
+
+	sessionQuery.Where("directions_date between ? and ?", from, to).
 		Group("period").
 		Order("period").
 		Scan(&stats)
