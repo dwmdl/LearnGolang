@@ -3,7 +3,7 @@ package stat
 import (
 	"api/configs"
 	"api/pkg/middleware"
-	"fmt"
+	"api/pkg/response"
 	"net/http"
 	"time"
 )
@@ -44,6 +44,8 @@ func (handler *Handler) GetStat() http.HandlerFunc {
 			http.Error(w, "Invalid 'by' param", http.StatusBadRequest)
 			return
 		}
-		fmt.Println(from, to, by)
+
+		stats := handler.Repository.GetStats(by, from, to)
+		response.Json(w, stats, http.StatusOK)
 	}
 }
