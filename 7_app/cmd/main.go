@@ -13,7 +13,7 @@ import (
 	"net/http"
 )
 
-func main() {
+func App() http.Handler {
 	config := configs.LoadConfig()
 	router := http.NewServeMux()
 	database := db.NewDb(config)
@@ -46,21 +46,25 @@ func main() {
 		Config:   config,
 	})
 
+	go eventService.AddDirection()
+
 	// Middlewares
 	middlewareStack := middleware.Chain(
 		middleware.CORS,
 		middleware.Logging,
 	)
 
+	return middlewareStack(router)
+}
+
+func main() {
+	app := App()
 	server := http.Server{
 		Addr:    ":8081",
-		Handler: middlewareStack(router),
+		Handler: app,
 	}
 
-	go eventService.AddDirection()
-
 	fmt.Println("Server is listening on port 8081")
-
 	err := server.ListenAndServe()
 	if err != nil {
 		panic(err.Error())
