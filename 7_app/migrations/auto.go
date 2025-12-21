@@ -22,17 +22,7 @@ func main() {
 		panic(err)
 	}
 
-	err = db.AutoMigrate(&link.Link{})
-	if err != nil {
-		panic(err)
-	}
-
-	err = db.AutoMigrate(&user.User{})
-	if err != nil {
-		panic(err)
-	}
-
-	err = db.AutoMigrate(&stat.Stat{})
+	err = db.AutoMigrate(&link.Link{}, &user.User{}, &stat.Stat{})
 	if err != nil {
 		panic(err)
 	}
