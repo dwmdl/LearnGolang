@@ -2,6 +2,7 @@ package main
 
 import (
 	"api/internal/auth"
+	"api/internal/user"
 	"bytes"
 	"encoding/json"
 	"io"
@@ -16,7 +17,7 @@ import (
 )
 
 func initDb() *gorm.DB {
-	err := godotenv.Load("cmd/.env.test")
+	err := godotenv.Load(".env.test")
 	if err != nil {
 		panic(err)
 	}
@@ -29,17 +30,32 @@ func initDb() *gorm.DB {
 	return db
 }
 
+func initData(db *gorm.DB) {
+	db.Create(&user.User{
+		Email:    "a@a.ru",
+		Password: "$2a$10$f59AArFa/dCuJBMQ36HsRO8.4xCyCPGX0NKyk8sPjlCovGw0IFzXe",
+		Name:     "TestName",
+	})
+}
+
+func removeData(db *gorm.DB) {
+	db.Unscoped().
+		Where("email = ?", "a@a.ru").
+		Delete(&user.User{})
+}
+
 func TestLogin(t *testing.T) {
 	t.Run("Login success", func(t *testing.T) {
 		// prepare part
-		//db := initDb()
+		db := initDb()
+		initData(db)
 
 		// test
 		ts := httptest.NewServer(App())
 		defer ts.Close()
 
 		data, _ := json.Marshal(&auth.LoginRequest{
-			Email:    "a@a123.ru",
+			Email:    "a@a.ru",
 			Password: "123",
 		})
 
@@ -65,9 +81,15 @@ func TestLogin(t *testing.T) {
 		}
 
 		t.Log(resData.Token)
+		removeData(db)
 	})
 
 	t.Run("Login failed", func(t *testing.T) {
+		// prepare part
+		db := initDb()
+		initData(db)
+
+		// test
 		ts := httptest.NewServer(App())
 		defer ts.Close()
 
@@ -83,5 +105,7 @@ func TestLogin(t *testing.T) {
 		if res.StatusCode == http.StatusOK {
 			t.Fatalf("Expected %d got %d", http.StatusBadRequest, res.StatusCode)
 		}
+
+		removeData(db)
 	})
 }
