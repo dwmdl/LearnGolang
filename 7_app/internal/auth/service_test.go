@@ -1,6 +1,7 @@
-package auth
+package auth_test
 
 import (
+	"api/internal/auth"
 	"api/internal/user"
 	"testing"
 )
@@ -17,10 +18,10 @@ func (repo *MockUserRepository) GetByEmail(email string) (*user.User, error) {
 	return nil, nil
 }
 
-func TestRegisterSuccess(t *testing.T) {
+func TestServiceRegisterSuccess(t *testing.T) {
 	const originEmail = "a@a.ru"
 
-	authService := NewService(&MockUserRepository{})
+	authService := auth.NewService(&MockUserRepository{})
 	email, err := authService.Register(originEmail, "123", "TestAuthService")
 	if err != nil {
 		t.Fatal(err.Error())
